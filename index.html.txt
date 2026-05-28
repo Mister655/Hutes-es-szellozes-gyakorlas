@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Szakmai Gyakorló és Számítási Felület - 10. Osztály</title>
+    <style>
+        :root {
+            --primary: #2b6cb0;
+            --primary-light: #ebf8ff;
+            --success: #2f855a;
+            --success-light: #f0fff4;
+            --error: #c53030;
+            --error-light: #fff5f5;
+            --ai-color: #6b46c1;
+            --ai-light: #faf5ff;
+            --calc-color: #dd6b20;
+            --calc-light: #fffaf0;
+            --text: #2d3748;
+            --bg: #f7fafc;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 10px;
+            margin-top: 0;
+            font-size: 1.8rem;
+        }
+
+        h2 {
+            color: #4a5568;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            background: #edf2f7;
+            padding: 10px;
+            border-radius: 6px;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background-color: #e2e8f0;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-box {
+            margin-bottom: 25px;
+        }
+
+        .question {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background-color: white;
+            border: 2px solid #e2e8f0;
+            padding: 14px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: var(--primary-light);
+            border-color: var(--primary);
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+        }
+
+        .correct {
+            background-color: var(--success-light) !important;
+            border-color: var(--success) !important;
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .wrong {
+            background-color: var(--error-light) !important;
+            border-color: var(--error) !important;
+            color: var(--error);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+        }
+
+        button.action-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .next-btn {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .ai-btn {
+            background-color: var(--ai-color);
+            color: white;
+        }
+
+        .ai-box {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: var(--ai-light);
+            border-left: 4px solid var(--ai-color);
+            border-radius: 0 8px 8px 0;
+            display: none;
+        }
+
+        .ai-title {
+            font-weight: bold;
+            color: var(--ai-color);
+            margin-bottom: 5px;
+        }
+
+        .result-screen {
+            text-align: center;
+            display: none;
+        }
+
+        .score {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 20px 0;
+        }
+
+        .menu-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .menu-title {
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            border-left: 4px solid var(--primary);
+            padding-left: 10px;
+        }
+
+        .module-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .mod-btn {
+            padding: 12px 15px;
+            border: 2px solid var(--primary);
+            background: white;
+            color: var(--primary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .mod-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .mod-btn.calc {
+            border-color: var(--calc-color);
+            color: var(--calc-color);
+        }
+
+        .mod-btn.calc.active {
+            background: var(--calc-color);
+            color: white;
+        }
+        
+        .info-text {
+            background-color: #ebf8ff;
+            border: 1px solid #bee3f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+            color: #2b6cb0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Szakmai Gyakorló & Számítási Felület</h1>
+    
+    <div id="setup-screen">
+        <div class="info-text">
+            <strong>Kedves Tanuló!</strong> Ez a felület segít felkészülni a Hűtéstechnika, Szellőzéstechnika és Épületgépészeti alapok témazáró dolgozatokra.
+            Az elméleti modulokból 10 kérdést kapsz. A <strong>Számítási feladatok</strong> menüpontban témakörönként 10 példa van elrejtve, amiből a gép 
+            <strong>automatikusan kiválaszt 5 darabot</strong>. Használd a ✨ <strong>AI Segítség</strong> gombot a képletek megtekintéséhez!
+        </div>
+        
+        <div class="menu-section">
+            <div class="menu-title">📚 ELMÉLETI TESZTEK (10 kérdés keverve)</div>
+            <div class="module-selector">
+                <button class="mod-btn active" id="btn-all" onclick="selectModule('all', false)">Vegyes Elmélet</button>
+                <button class="mod-btn" id="btn-hutes" onclick="selectModule('hutes', false)">Hűtéstechnika Elmélet</button>
+                <button class="mod-btn" id="btn-szellozes" onclick="selectModule('szellozes', false)">Szellőzéstechnika Elmélet</button>
+                <button class="mod-btn" id="btn-alapok" onclick="selectModule('alapok', false)">Épületgépészeti Alapok Elmélet</button>
+            </div>
+        </div>
+
+        <div class="menu-section" style="background: var(--calc-light); border-color: #feebc8;">
+            <div class="menu-title" style="border-left-color: var(--calc-color);">🧮 SZÁMÍTÁSI FELADATOK MENÜPONT (Témakörönként fixen csak 5 feladat!)</div>
+            <div class="module-selector">
+                <button class="mod-btn calc" id="btn-hutes_calc" onclick="selectModule('hutes_calc', true)">Hűtéstechnika Számítások</button>
+                <button class="mod-btn calc" id="btn-szellozes_calc" onclick="selectModule('szellozes_calc', true)">Szellőzéstechnika Számítások</button>
+                <button class="mod-btn calc" id="btn-alapok_calc" onclick="selectModule('alapok_calc', true)">Alapok: Légcsatorna Számítások</button>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 25px;">
+            <button class="action-btn next-btn" style="font-size:1.2rem; padding: 15px 50px; border-radius:30px;" onclick="startQuiz()">Gyakorlás Indítása ➔</button>
+        </div>
+    </div>
+
+    <div id="quiz-screen" style="display: none;">
+        <h2 id="module-title">Kérdések betöltése...</h2>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        
+        <div class="quiz-box">
+            <div class="question" id="question-text">Kérdés szövege</div>
+            <div class="options" id="options-container"></div>
+        </div>
+
+        <div class="ai-box" id="ai-box">
+            <div class="ai-title">✨ AI Tanársegéd segítségnyújtás (Képletek és elv):</div>
+            <div id="ai-text"></div>
+        </div>
+
+        <div class="controls">
+            <button class="action-btn ai-btn" id="ai-btn" onclick="showAiHelp()">✨ AI Segítség</button>
+            <button class="action-btn next-btn" id="next-btn" onclick="nextQuestion()" style="visibility: hidden;">Következő ➔</button>
+        </div>
+    </div>
+
+    <div class="result-screen" id="result-screen">
+        <h2>A gyakorlás véget ért!</h2>
+        <p>A sikeres témazáróhoz legalább 80%-os eredmény elérése ajánlott.</p>
+        <div class="score" id="score-text">0 / 0</div>
+        <p id="evaluation-text" style="font-size: 1.2rem; font-weight: bold;"></p>
+        <button class="action-btn next-btn" style="margin-top: 20px;" onclick="location.reload()">Vissza a főmenübe</button>
+    </div>
+</div>
+
+<script>
+    const questionBank = [
+        // === HŰTÉSTECHNIKA ELMÉLET ===
+        { corpus: 'hutes', question: "Melyik állapotjelző fejezi ki a felületegységre jutó nyomóerőt?", options: ["Nyomás (p)", "Hőmérséklet (T)", "Fajlagos térfogat (v)", "Entalpia (h)"], answer: 0, ai: "Pascal vagy bar. A hűtőkörben manométerrel mérjük." },
+        { corpus: 'hutes', question: "Mi a hűtőközeg vákuumozásának elsődleges célja?", options: ["A nedvesség és a nem kondenzálódó gázok eltávolítása", "A nyomás növelése", "Az olaj hígítása", "A kompresszor hűtése"], answer: 0, ai: "A bennmaradó nedvesség savasodást és jégdugót okozhat a fojtószerkezetnél." },
+        { corpus: 'hutes', question: "Melyik kompresszor működik excentrikusan forgó henger és elválasztó lapka elvén?", options: ["Gördülődugattyús", "Dugattyús", "Scroll", "Csavarkompresszor"], answer: 0, ai: "Kisebb klímákban és háztartási hűtőkben használt rotációs kompresszor." },
+        { corpus: 'hutes', question: "Mi a feladata a hűtőkörben található elpárologtatónak?", options: ["Hő elvonása a hűtendő térből a hűtőközeg forralásával", "Hő leadása", "Nyomáscsökkentés", "Sűrítés"], answer: 0, ai: "Itt megy végbe a hűtés, a hűtőközeg hőt vesz fel a környezetétől." },
+        { corpus: 'hutes', question: "Melyik elem védi meg a hűtőrendszert a kritikus nyomásértékektől?", options: ["Presszosztát", "Schrader-szelep", "Fojtószelep", "Folyadékgyűjtő"], answer: 0, ai: "A nyomáskapcsoló vész esetén megszakítja a kompresszor áramkörét." },
+        { corpus: 'hutes', question: "Milyen halmazállapotú a hűtőközeg a kompresszor szívócsonkjánál?", options: ["Túlhevített gőz (alacsony nyomáson)", "Nedves gőz", "Nagynyomású folyadék", "Alacsony nyomású folyadék"], answer: 0, ai: "A kompresszorba csak tiszta gőz léphet be, folyadékütés elkerülése végett." },
+        { corpus: 'hutes', question: "Mit csinál a hűtőközeggel a kondenzátor (cseppfolyósító)?", options: ["Hőt ad le a környezetnek és lecsapódik", "Hőt von el és elpárolog", "Nyomást csökkent", "Hőmérsékletet csökkent fázisváltozás nélkül"], answer: 0, ai: "A kompresszor után a forró gőz itt adja le a hőt és válik folyadékká." },
+        { corpus: 'hutes', question: "Mi történik a hűtőközeggel az expanziós (fojtó) szelepben?", options: ["Nyomása és hőmérséklete hirtelen lecsökken", "Nyomása megnő", "Halmazállapota tiszta gőzzé válik", "Olaj választódik le belőle"], answer: 0, ai: "A szelep szűk keresztmetszete miatt a nyomás hirtelen leesik, a folyadék hűlni kezd." },
+        { corpus: 'hutes', question: "Melyik mérőeszközt használjuk a hűtőrendszer vákuumszintjének pontos ellenőrzésére?", options: ["Mikronmérő (abszolút vákuummérő)", "Normál nagynyomású manométer", "Hőmérő", "Áramlásmérő"], answer: 0, ai: "A hagyományos manométerek nem elég pontosak a mélyvákuum (pl. 500 mikron) mérésére." },
+        { corpus: 'hutes', question: "Mit jelent a hűtőtechnikai 'folyadékütés' kifejezés?", options: ["Folyékony hűtőközeg jut a kompresszor sűrítőterébe", "A hűtőközeg nagy sebességgel csapódik a csőfalnak", "A kondenzátor megtelik vízzel", "A szelepek záródási hangja"], answer: 0, ai: "Mivel a folyadékok összenyomhatatlanok, a kompresszorba jutva mechanikai törést okoznak." },
+        { corpus: 'hutes', question: "Mit határoz meg a modern szabványok szerinti EER tényező?", options: ["A hűtőteljesítmény és a felvett villamos teljesítmény hányadosát (hűtési jóságfok)", "A fűtési jóságfokot", "A csővezeték érdességét", "A kompresszor olajnyomását"], answer: 0, ai: "Az EER (Energy Efficiency Ratio) a tiszta hűtési üzemmód hatékonysági mutatója." },
+
+        // === SZELLŐZÉSTECHNIKA ELMÉLET ===
+        { corpus: 'szellozes', question: "Hogyan változik a levegő relatív páratartalma, ha a nedvességtartalom fix, de a levegőt felmelegítjük?", options: ["Csökken", "Növekszik", "Változatlan marad", "Nullára esik"], answer: 0, ai: "A melegebb levegő több vízgőzt tud befogadni, így a meglévő százalékosan kevesebb lesz." },
+        { corpus: 'szellozes', question: "Milyen folyamat zajlik le vizes porlasztásos (adiabatikus) párásításkor?", options: ["A száraz hőmérséklet csökken, a nedvességtartalom nő", "A hőmérséklet nő", "Az entalpia drasztikusan nő", "A levegő kiszárad"], answer: 0, ai: "A víz elpárolgásához szükséges hőt maga a levegő adja le, így az lehűl." },
+        { corpus: 'szellozes', question: "Melyik szellőzési mód akadályozza meg a szagok kiáramlását a konyhából?", options: ["Depressziós (szívott) szellőzés", "Túlnyomásos szellőzés", "Kiegyenlített szellőzés", "Gravitációs szellőzés"], answer: 0, ai: "Több levegőt szívunk el, mint amennyit befújunk, így a szomszédos terekből befelé áramlik a levegő." },
+        { corpus: 'szellozes', question: "Melyik diagramot használjuk a nedves levegő állapotváltozásainak tervezéséhez?", options: ["Mollier h - x diagram", "log p - h diagram", "T - s diagram", "p - V diagram"], answer: 0, ai: "A klímatechnika alapdiagramja, ferdetengelyű koordináta-rendszerben." },
+        { corpus: 'szellozes', question: "Mi történik izotermikus párásítás során (pl. száraz gőzbefúvásnál)?", options: ["A nedvességtartalom nő, a hőmérséklet állandó marad", "A levegő lehűl", "A relatív páratartalom csökken", "Az entalpia csökken"], answer: 0, ai: "Az 'izotermikus' jelentése: állandó hőmérsékletű." },
+        { corpus: 'szellozes', question: "Mit nevezünk harmatponti hőmérsékletnek?", options: ["Azt a hőmérsékletet, amelyre a levegőt lehűtve a vízgőz lecsapódik", "A jég olvadáspontját", "A gőz forráspontját", "A külső tervezési hőmérsékletet"], answer: 0, ai: "Ha a felület hőmérséklete ez alatt van, megindul a vizesedés, cseppképződés." },
+        { corpus: 'szellozes', question: "Mi az entalpia (h) mértékegysége a h-x diagramon?", options: ["kJ/kg", "kg/m3", "g/kg", "%"], answer: 0, ai: "Egységnyi tömegű száraz levegő és a hozzá tartozó vízgőz hőtartalmát jelöli." },
+        { corpus: 'szellozes', question: "Mit fejez ki az 'x' tengely a Mollier-diagramon?", options: ["Az abszolút nedvességtartalmat (g vízgőz / kg száraz levegő)", "A relatív páratartalmat", "A sűrűséget", "A száraz hőmérsékletet"], answer: 0, ai: "Megmutatja, hogy pontosan hány gramm vízgőz van 1 kg száraz levegőben." },
+        { corpus: 'szellozes', question: "Mit jelent a kiegyenlített szellőzés fogalma?", options: ["A befújt és az elszívott levegő mennyisége megegyezik", "A hőmérséklet egyenletes", "A páratartalom állandó", "A ventilátor fordulatszáma fix"], answer: 0, ai: "A helyiségben nincs se túlnyomás, se depresszió, a mérleg egyensúlyban van." },
+        { corpus: 'szellozes', question: "Melyik berendezés szolgál a távozó meleg levegő hőtartalmának visszanyerésére?", options: ["Hővisszanyerő (rekuperátor)", "Léghevítő", "Gőzpárásító", "Keverőkamra"], answer: 0, ai: "A két légáram nem keveredik, de a falon keresztül átadják egymásnak a hőt." },
+
+        // === ÉPÜLETGÉPÉSZETI ALAPOK ELMÉLET ===
+        { corpus: 'alapok', question: "Hogyan arányos egy egyenes csatorna súrlódási nyomásesése a csatorna hosszával (L)?", options: ["Egyenesen arányos", "Fordítottan arányos", "Négyzetesen arányos", "Független tőle"], answer: 0, ai: "A hossz duplázódásával a súrlódási felület is duplázódik, így a veszteség is lineárisan kétszeres lesz." },
+        { corpus: 'alapok', question: "Hogyan változik a dinamikus nyomás, ha a levegő áramlási sebességét a kétszeresére növeljük?", options: ["A négyszeresére nő", "A kétszeresére nő", "A felére csökken", "Változatlan marad"], answer: 0, ai: "A dinamikus nyomás képletében (rho/2 * v^2) a sebesség a négyzeten szerepel." },
+        { corpus: 'alapok', question: "Mit fejez ki a légcsatorna-idomok esetében alkalmazott zéta (ζ) tényező?", options: ["A helyi (alaki) ellenállási tényezőt", "A csőfal abszolút érdességét", "A levegő sűrűségét", "A csatorna kerületét"], answer: 0, ai: "Dimenziótlan szám, megmutatja, hogy az idom a dinamikus nyomás hányszorosát veszti el." },
+        { corpus: 'alapok', question: "Melyik jelenség okozza az alaki nyomásesést egy éles, 90 fokos könyökidomban?", options: ["Az áramlás leválása és az örvénylések", "A levegő sűrűségének növekedése", "A csőfal hirtelen lehűlése", "A lamináris áramlás kisimulása"], answer: 0, ai: "A tehetetlen levegő nem tudja követni az éles sarkot, leválik a falról és energiafaló örvények keletkeznek." },
+        { corpus: 'alapok', question: "Hogyan befolyásolja a légcsatorna belső felületének érdessége a súrlódási nyomásveszteséget?", options: ["Érdesebb felület esetén a nyomásveszteség sokkal nagyobb", "Az érdesség egyáltalán nem számít", "Az érdesebb fal csökkenti az ellenállást", "Csak négyszögletes csatornáknál számít"], answer: 0, ai: "A fali egyenetlenségek fékezik az áramlást. A sima merev acélcső ellenállása sokkal kisebb." },
+        { corpus: 'alapok', question: "Melyik egyenlet alapozza meg az áramló levegő statikus és dinamikus nyomásának összegét?", options: ["Bernoulli-törvény", "Ohm-törvény", "Boyle-Mariotte törvény", "Fourier-törvény"], answer: 0, ai: "A Bernoulli-egyenlet kimondja, hogy az áramvonal mentén a statikus és dinamikus nyomások összege állandó." },
+        { corpus: 'alapok', question: "Mit jelent az áramlási folytonosság (kontinuitás) törvénye?", options: ["A keresztmetszet és az áramlási sebesség szorzata állandó (A1 * v1 = A2 * v2)", "A sebesség mindenhol fix", "A nyomás állandó", "A levegő sűrűsége nő a szűkületben"], answer: 0, ai: "A csőbe belépő levegőmennyiségnek meg kell egyeznie a kilépővel. Szűkebb csatornában felgyorsul a levegő." },
+        { corpus: 'alapok', question: "Hogyan határozható meg egy négyszög keresztmetszetű (a x b) légcsatorna egyenértékű hidraulikai átmérője (dh)?", options: ["dh = (2 * a * b) / (a + b)", "dh = a + b", "dh = a * b", "dh = (a + b) / 2"], answer: 0, ai: "A hidraulikai átmérő képlete: 4 * Terület / Kerület, ebből jön ki a (2*a*b)/(a+b) összefüggés." },
+        { corpus: 'alapok', question: "Milyen mértékegységben fejezzük ki a légcsatorna egységnyi hosszára jutó súrlódási nyomásesést?", options: ["Pa/m (Pascal / méter)", "bar", "m/s", "kg/h"], answer: 0, ai: "Megmutatja, hogy egyetlen méter egyenes csőszakaszon hány Pascal nyomást veszítünk el (R [Pa/m])." },
+        { corpus: 'alapok', question: "Melyik idom elhelyezése okozza a legkisebb alaki nyomásveszteséget az alábbiak közül?", options: ["Íves, terelőlapátos könyökidom", "Éles, 90 fokos szögletes könyök", "Hirtelen keresztmetszet-bővülés", "Derékszögű T-idom"], answer: 0, answer: 0, ai: "A finom ív és a beépített terelőlapátok segítenek a levegőnek irányt váltani leválás és örvények nélkül." },
+
+        // === HŰTÉSTECHNIKA SZÁMÍTÁSOK (Javított szabványos kérdések) ===
+        { corpus: 'hutes_calc', question: "Egy folyadékhűtő klímaberendezés 12 kW hasznos hűtőteljesítményt biztosít, miközben a felvett villamos teljesítménye 4 kW. Mennyi a berendezés hűtési jóságfoka (EER)?", options: ["3,0", "2,0", "0,33", "4,8"], answer: 0, ai: "Számítás a hűtési jóságfokra: EER = Hűtőteljesítmény / Felvett villamos teljesítmény. Tehát: 12 kW / 4 kW = ?" },
+        { corpus: 'hutes_calc', question: "Egy hőszivattyú fűtési üzemmódban működik. A kondenzációs hőteljesítménye 15 kW, miközben a hálózatból felvett villamos teljesítménye 3 kW. Mennyi a berendezés fűtési jóságfoka (COP)?", options: ["5,0", "3,0", "0,2", "18,0"], answer: 0, ai: "Számítás a fűtési jóságfokra az új szabvány szerint: COP = Kondenzációs hőteljesítmény / Felvett villamos teljesítmény. Tehát: 15 kW / 3 kW = ?" },
+        { corpus: 'hutes_calc', question: "A hűtőkompresszor szívóoldali manométere R134a hűtőközegnél 2,0 bar nyomást mutat, amihez 0 °C-os telítési hőmérséklet tartozik. A csőre rögzített hőmérő azonban +6 °C-ot mér. Mekkora a hűtőközeg gőz túlhevítése (superheat)?", options: ["6 K", "2 K", "0 K", "12 K"], answer: 0, ai: "Képlet: Túlhevítés = Tényleges gőzhőmérséklet - Telítési hőmérséklet. Számítás: 6 °C - 0 °C = ?" },
+        { corpus: 'hutes_calc', question: "Egy klímaberendezés hűtési jóságfoka EER = 4,0. A kompresszor és a ventilátorok együttesen 2 kW villamos áramot vesznek fel. Mekkora a berendezés hűtőteljesítménye?", options: ["8 kW", "2 kW", "0,5 kW", "6 kW"], answer: 0, ai: "Mivel EER = Hűtőteljesítmény / Felvett villamos teljesítmény, így a Hűtőteljesítmény = EER * Felvett villamos teljesítmény = 4,0 * 2 kW." },
+        { corpus: 'hutes_calc', question: "A hűtőközeg entalpiája az elpárologtatóba való belépéskor h1 = 200 kJ/kg, a kilépéskor pedig h2 = 380 kJ/kg. Mekkora a fajlagos hűtőteljesítmény (q)?", options: ["180 kJ/kg", "580 kJ/kg", "200 kJ/kg", "90 kJ/kg"], answer: 0, ai: "Képlet: q = h2 - h1. Az elpárologtatóban az entalpia növekszik, a kettő különbsége a felvett hő: 380 - 200 = ?" },
+        { corpus: 'hutes_calc', question: "Mekkora a hűtőközeg tömegárama (m), ha a fajlagos hűtőteljesítmény q = 200 kJ/kg, és a gép teljes hűtőteljesítménye Q = 10 kW (azaz 10 kJ/s)?", options: ["0,05 kg/s", "20 kg/s", "2 kg/s", "0,5 kg/s"], answer: 0, ai: "Képlet: Q = m * q -> m = Q / q. Számítás: m = 10 / 200 = ?" },
+        { corpus: 'hutes_calc', question: "A kondenzátorba belépő forró gőz entalpiája 420 kJ/kg, a távozó folyadéké 220 kJ/kg. Mekkora a kondenzátorban leadott fajlagos hőmennyiség (qk)?", options: ["200 kJ/kg", "640 kJ/kg", "220 kJ/kg", "100 kJ/kg"], answer: 0, ai: "Képlet: qk = h_be - h_ki. A leadott hő az entalpia csökkenése: 420 - 220 = ?" },
+        { corpus: 'hutes_calc', question: "Egy hűtőkörben a felvett villamos teljesítmény 3 kW, és az elpárologtató 9 kW hűtőteljesítménnyel von el hőt a térből. Mekkora kondenzációs hőteljesítményt (Qk) kell a kondenzátornak leleadnia?", options: ["12 kW", "6 kW", "3 kW", "27 kW"], answer: 0, ai: "Az energiamegmaradás szerint a kondenzátornak le kell adnia a hűtőteljesítményt ÉS a bevezetett villamos teljesítményt is: Qk = Q_hűtő + P_villamos = 9 + 3." },
+        { corpus: 'hutes_calc', question: "A vákuumszivattyú kijelzője 2000 mikron szintet mutat. Elérte-e a rendszer a hűtéstechnikában előírt mélyvákuum biztonsági szintet (500 mikron)? Hány mikron hiányzik még?", options: ["Nem, még 1500 mikront kell csökkenteni a nyomáson", "Igen, tökéletes", "Nem, 2500 mikron kellene", "Igen, a 2000 jobb mint az 500"], answer: 0, ai: "A vákuumozásnál a nyomást minél közelebb kell vinni a nullához. Az 500 mikron a cél (2000 - 500 = 1500)." },
+        { corpus: 'hutes_calc', question: "Egy hűtőkamra elpárologtató ventilátora óránként 1200 kJ hőt termel a motor vesztesége miatt. Hány Watt (W) folyamatos hőt jelent ez a hűtőkör terhelésére? (1 óra = 3600 másodperc)", options: ["0,33 W", "333 W", "1200 W", "3,6 W"], answer: 0, ai: "Watt = Joule / másodperc. 1200 kJ = 1 200 000 Joule. Ezt oszd el 3600 másodperccel: 1200000 / 3600 = ?" },
+
+        // === SZELLŐZÉSTECHNIKA SZÁMÍTÁSOK ===
+        { corpus: 'szellozes_calc', question: "Egy tanterem térfogata V = 200 m3. A szellőzőrendszer óránként V_levegő = 600 m3 friss levegőt fúj be. Mekkora a helyiség légcsere-száma (n)?", options: ["3 1/h", "2 1/h", "0,33 1/h", "1200 1/h"], answer: 0, ai: "Képlet: n = V_levegő / V_terem. Számítás: 600 m3/h / 200 m3 = ?" },
+        { corpus: 'szellozes_calc', question: "Egy irodában 10 ember dolgozik. A szabvány szerint személyenként minimum 30 m3/h friss külső levegőt kell biztosítani. Mekkora minimális légszállítású ventilátort kell beépíteni?", options: ["300 m3/h", "30 m3/h", "3 m3/h", "100 m3/h"], answer: 0, ai: "Képlet: Összes levegő = Létszám * egy fő igénye = 10 * 30 m3/h." },
+        { corpus: 'szellozes_calc', question: "A rekuperátoros hővisszanyerőbe be lépő elszívott meleg levegő 22 °C-os, a kinti friss hideg levegő 2 °C-os. A hővisszanyerő hatásfoka 50%. Hány fokosra melegszik fel a friss levegő a befújás előtt?", options: ["12 °C", "10 °C", "20 °C", "7 °C"], answer: 0, ai: "A max különbség 22 - 2 = 20 °C. Ennek az 50%-át nyeri vissza (10 °C): 2 °C + 10 °C = ?" },
+        { corpus: 'szellozes_calc', question: "A szellőzőgép kaloriferében másodpercenként 2 kg levegő áramlik át (m = 2 kg/s). A levegő fajhője c = 1 kJ/kgK. A kalorifer 20 kW fűtőteljesítményt ad le. Hány Kelvinnel emelkedik meg a levegő hőmérséklete?", options: ["10 K", "20 K", "5 K", "40 K"], answer: 0, ai: "Képlet: deltaT = Q / (m * c). Számítás: 20 kW / (2 kg/s * 1 kJ/kgK) = 20 / 2 = ?" },
+        { corpus: 'szellozes_calc', question: "A Mollier h-x diagramról leolvastuk, hogy a levegő abszolút nedvességtartalma x = 8 g/kg. A szellőzőgép óránként 2000 kg tömegű száraz levegőt mozgat meg. Hány gramm (g) vizet szállít a levegő óránként?", options: ["16000 g", "250 g", "160 g", "8000 g"], answer: 0, ai: "Mivel 1 kg levegőben 8 g víz van, 2000 kg levegőben: 2000 * 8 g víz lesz." },
+        { corpus: 'szellozes_calc', question: "Egy keverőkamrába befut egy friss levegőáram (m1 = 100 kg/h, T1 = 0 °C) és egy visszakevert meleg áram (m2 = 100 kg/h, T2 = 20 °C). Mivel a két tömegáram tökéletesen megegyezik, mennyi lesz a kevert levegő hőmérséklete?", options: ["10 °C", "20 °C", "0 °C", "15 °C"], answer: 0, ai: "Egyenlő tömegáramok esetén a keverék hőmérséklete a két kiinduló érték átlaga: (0 + 20) / 2 = ?" },
+        { corpus: 'szellozes_calc', question: "A ventilátor térfogatárama V = 0,5 m3/s. A levegő sűrűsége rho = 1,2 kg/m3. Mekkora a ventilátor által szállított levegő tömegárama (m) másodpercenként?", options: ["0,6 kg/s", "1,2 kg/s", "2,4 kg/s", "0,5 kg/s"], answer: 0, ai: "Képlet: tömegáram (m) = térfogatáram (V) * sűrűség (rho). Számítás: 0,5 * 1,2 = ?" },
+        { corpus: 'szellozes_calc', question: "A nedves levegő entalpiája h = 45 kJ/kg, a benne lévő száraz levegő tömege 10 kg. Mekkora a teljes hőtartalom (H) kilojoule-ban mérve?", options: ["450 kJ", "45 kJ", "90 kJ", "200 kJ"], answer: 0, ai: "Képlet: H = m * h. A fajlagos értéket meg kell szorozni a teljes tömeggel: 10 * 45 = ?" },
+        { corpus: 'szellozes_calc', question: "A helyiségből óránként 500 m3 levegőt szívunk el, de a túlnyomás biztosítása érdekében 600 m3/h levegőt fújunk be. Hány m3 levegő áramlik ki óránként a nyílászárók résein?", options: ["100 m3/h", "1100 m3/h", "500 m3/h", "0 m3/h"], answer: 0, ai: "Ami pluszban bemegy, annak ki kell szöknie a réseken a túlnyomás miatt: 600 - 500 = ?" },
+        { corpus: 'szellozes_calc', question: "A gőzpárásító óránként 5 kg tiszta gőzt juttat a légcsatornába. A gőz párolgási entalpiája r = 2500 kJ/kg. Mekkora hőteljesítményt (fűtést) visz be ez a gőz a légáramba óránként?", options: ["12500 kJ/h", "500 kJ/h", "2500 kJ/h", "5000 kJ/h"], answer: 0, ai: "Képlet: Q = m * r. Számítás: 5 kg/h * 2500 kJ/kg = ?" },
+
+        // === ÉPÜLETGÉPÉSZETI ALAPOK SZÁMÍTÁSOK ===
+        { corpus: 'alapok_calc', question: "A légcsatornában a levegő sebessége v = 4 m/s. A levegő sűrűsége rho = 1,2 kg/m3. Mekkora a levegő dinamikus nyomása (pd)?", options: ["9,6 Pa", "4,8 Pa", "19,2 Pa", "1,2 Pa"], answer: 0, ai: "Képlet: pd = (rho / 2) * v^2. Számítás: (1,2 / 2) * 4^2 = 0,6 * 16 = ?" },
+        { corpus: 'alapok_calc', question: "Egy egyenes horganyzott acél légcsatorna fajlagos súrlódási nyomásesése R = 2,0 Pa/m. Mekkora a teljes súrlódási nyomásveszteség egy L = 15 méter hosszú egyenes szakaszon?", options: ["30 Pa", "17 Pa", "7,5 Pa", "2 Pa"], answer: 0, ai: "Képlet: Delta_p = R * L. Ha méterenként 2 Pascal vész el, akkor 15 méteren: 2 * 15 = ?" },
+        { corpus: 'alapok_calc', question: "Egy könyökidom alaki ellenállási tényezője zéta = 0,5. A benne áramló levegő dinamikus nyomása pd = 20 Pa. Mekkora az idom alaki nyomásvesztesége (Delta_pa)?", options: ["10 Pa", "40 Pa", "20,5 Pa", "5 Pa"], answer: 0, ai: "Képlet: Delta_pa = zéta * pd. Számítás: 0,5 * 20 Pa = ?" },
+        { corpus: 'alapok_calc', question: "A főcsatorna keresztmetszete A1 = 0,1 m2, benne a sebesség v1 = 6 m/s. A csatorna beszűkül, az új keresztmetszet A2 = 0,05 m2 (a fele). Mekkora lesz a sebesség (v2)?", options: ["12 m/s", "3 m/s", "6 m/s", "24 m/s"], answer: 0, ai: "Mivel A1 * v1 = A2 * v2, ha a keresztmetszet a felére csökken, a sebesség megduplázódik: 2 * 6 = ?" },
+        { corpus: 'alapok_calc', question: "Egy négyszög keresztmetszetű légcsatorna méretei: a = 0,4 m, b = 0,2 m. Számítsd ki a hidraulikai egyenértékű átmérőt a dh = (2 * a * b) / (a + b) képlettel!", options: ["0,266 m", "0,6 m", "0,08 m", "0,133 m"], answer: 0, ai: "Behelyettesítés: (2 * 0,4 * 0,2) / (0,4 + 0,2) = 0,16 / 0,6 = ?" },
+        { corpus: 'alapok_calc', question: "Egy ventilátor össznyomása pt = 150 Pa. A kilépő csonknál a dinamikus nyomás pd = 30 Pa. Mekkora a ventilátor hasznos statikus nyomása (ps)?", options: ["120 Pa", "180 Pa", "5 Pa", "4500 Pa"], answer: 0, ai: "Képlet: pt = ps + pd -> ps = pt - pd. Számítás: 150 Pa - 30 Pa = ?" },
+        { corpus: 'alapok_calc', question: "A légcsatorna kör keresztmetszetű, átmérője D = 0,2 m (sugara r = 0,1 m). Számítsd ki a keresztmetszeti területét (A) az A = r^2 * pi képlettel! (pi = 3,14)", options: ["0,0314 m2", "0,1256 m2", "0,628 m2", "0,01 m2"], answer: 0, ai: "Számítás: 0,1 * 0,1 * 3,14 = 0,01 * 3,14 = ?" },
+        { corpus: 'alapok_calc', question: "Egy egyenes légcsatorna-szakasz és a rajta lévő idomok együttesen 45 Pa ellenállást fejtenek ki. A ventilátornak le kell győznie a beömlő rács 15 Pa ellenállását is. Mekkora minimális nyomású ventilátor szükséges?", options: ["60 Pa", "30 Pa", "45 Pa", "15 Pa"], answer: 0, ai: "A sorba kapcsolt ellenállások (nyomásesések) összeadódnak: 45 Pa + 15 Pa = ?" },
+        { corpus: 'alapok_calc', question: "A légcsatorna idom zéta tényezője zéta = 2,0. A benne haladó levegő sebessége miatt a dinamikus nyomás 12 Pa. Mekkora alaki ellenállást generál ez az idom?", options: ["24 Pa", "6 Pa", "14 Pa", "12 Pa"], answer: 0, ai: "Képlet: Delta_p = zéta * pd = 2,0 * 12 Pa = ?" },
+        { corpus: 'alapok_calc', question: "A mérőműszer szerint a csatornában az össznyomás pt = 80 Pa, a statikus nyomás pedig ps = 62 Pa. Mennyi a mozgásból származó dinamikus nyomás (pd)?", options: ["18 Pa", "142 Pa", "80 Pa", "1,29 Pa"], answer: 0, ai: "Mivel pt = ps + pd, így a dinamikus rész a kettő különbsége: pt - ps = 80 - 62 = ?" }
+    ];
+
+    let currentQuestions = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let selectedModuleType = 'all';
+    let isCalculationMode = false;
+
+    function selectModule(type, isCalc) {
+        selectedModuleType = type;
+        isCalculationMode = isCalc;
+        document.querySelectorAll('.mod-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`btn-${type}`).classList.add('active');
+    }
+
+    function startQuiz() {
+        let pool = questionBank.filter(q => q.corpus === selectedModuleType);
+        
+        if (selectedModuleType === 'all') {
+            pool = questionBank.filter(q => !q.corpus.includes('calc'));
+            pool.sort(() => Math.random() - 0.5);
+            currentQuestions = pool.slice(0, 10);
+        } else if (isCalculationMode) {
+            pool.sort(() => Math.random() - 0.5);
+            currentQuestions = pool.slice(0, 5); // FIXEN 5 DARAB SZÁMÍTÁSOS SORSOLÁSA
+        } else {
+            pool.sort(() => Math.random() - 0.5);
+            currentQuestions = pool.slice(0, 10);
+        }
+        
+        document.getElementById('setup-screen').style.display = 'none';
+        document.getElementById('quiz-screen').style.display = 'block';
+        
+        currentQuestionIndex = 0;
+        score = 0;
+        showQuestion();
+    }
+
+    function showQuestion() {
+        document.getElementById('ai-box').style.display = 'none';
+        document.getElementById('next-btn').style.visibility = 'hidden';
+        document.getElementById('ai-btn').disabled = false;
+        
+        const q = currentQuestions[currentQuestionIndex];
+        let prefix = isCalculationMode ? "🧮 SZÁMÍTÁSOS FELADAT" : "📚 ELMÉLETI KÉRDÉS";
+        
+        document.getElementById('module-title').innerText = `${prefix} (${currentQuestionIndex + 1} / ${currentQuestions.length})`;
+        
+        const progressPercent = (currentQuestionIndex / currentQuestions.length) * 100;
+        document.getElementById('progress').style.width = `${progressPercent}%`;
+        
+        document.getElementById('question-text').innerText = q.question;
+        
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = '';
+        
+        let indices = [0, 1, 2, 3];
+        indices.sort(() => Math.random() - 0.5);
+        
+        indices.forEach((origIndex) => {
+            const button = document.createElement('button');
+            button.className = 'option-btn';
+            button.innerText = q.options[origIndex];
+            button.onclick = () => checkAnswer(button, origIndex, q.answer);
+            optionsContainer.appendChild(button);
+        });
+    }
+
+    function checkAnswer(clickedButton, selectedIndex, correctIndex) {
+        const buttons = document.querySelectorAll('.option-btn');
+        buttons.forEach(btn => btn.disabled = true);
+        document.getElementById('ai-btn').disabled = true;
+        
+        if (selectedIndex === correctIndex) {
+            clickedButton.classList.add('correct');
+            score++;
+        } else {
+            clickedButton.classList.add('wrong');
+            buttons.forEach(btn => {
+                const q = currentQuestions[currentQuestionIndex];
+                if(btn.innerText === q.options[correctIndex]) {
+                    btn.classList.add('correct');
+                }
+            });
+        }
+        document.getElementById('next-btn').style.visibility = 'visible';
+    }
+
+    function showAiHelp() {
+        const q = currentQuestions[currentQuestionIndex];
+        document.getElementById('ai-text').innerText = q.ai;
+        document.getElementById('ai-box').style.display = 'block';
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < currentQuestions.length) {
+            showQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        document.getElementById('quiz-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'block';
+        
+        const percentage = Math.round((score / currentQuestions.length) * 100);
+        document.getElementById('score-text').innerText = `${score} / ${currentQuestions.length} (${percentage}%)`;
+        
+        const evalElement = document.getElementById('evaluation-text');
+        if (percentage >= 80) {
+            evalElement.innerText = "Kiváló! Teljesen készen állsz a témazáró számításos és elméleti részére is! 🎉";
+            evalElement.style.color = "var(--success)";
+        } else if (percentage >= 50) {
+            evalElement.innerText = "Jó úton jársz, de fusson neki a hiányzó modulnak is a biztos jegyért! 👍";
+            evalElement.style.color = "var(--primary)";
+        } else {
+            evalElement.innerText = "Ez még kevés lesz. Próbáld újra, és kövesd az AI segítség képleteit! 📚";
+            evalElement.style.color = "var(--error)";
+        }
+    }
+</script>
+
+</body>
+</html>
